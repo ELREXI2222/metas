@@ -135,16 +135,38 @@ export const ui = {
     /**
      * Render the settings/stats view
      */
-    renderSettings: (container) => {
+    renderSettings: (container, user) => {
         container.innerHTML = `
             <div class="card fade-in">
-                <h2 style="margin-bottom: 1rem">Configuración y Respaldo</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                    Tus datos se guardan de forma local en este navegador. Si borras el historial o desinstalas el navegador, perderás tus metas. Te recomendamos hacer respaldos periódicos.
+                <h2 style="margin-bottom: 1rem">Cuenta y Sincronización</h2>
+                
+                ${user ? `
+                    <div style="background: rgba(139, 92, 246, 0.1); padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                            ${user.email[0].toUpperCase()}
+                        </div>
+                        <div style="flex: 1">
+                            <p style="font-size: 0.9rem; font-weight: 600;">${user.email}</p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted);">Sincronización activa</p>
+                        </div>
+                        <button id="btn-logout" class="btn btn-ghost" style="width: auto; padding: 0.5rem 1rem; color: var(--accent-red)">Salir</button>
+                    </div>
+                ` : `
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem; text-align: center;">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                            Inicia sesión para sincronizar tus metas entre dispositivos.
+                        </p>
+                        <button id="btn-login-trigger" class="btn btn-primary">Iniciar Sesión / Registro</button>
+                    </div>
+                `}
+
+                <h3 style="margin-bottom: 1rem; font-size: 1rem;">Respaldo Manual</h3>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">
+                    Incluso con la nube, te recomendamos exportar tus datos ocasionalmente.
                 </p>
                 
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <button id="btn-export" class="btn btn-primary">
+                    <button id="btn-export" class="btn btn-ghost" style="border: 1px solid var(--glass-border)">
                         💾 Exportar Mis Datos (JSON)
                     </button>
                     
@@ -158,11 +180,83 @@ export const ui = {
 
                 <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--glass-border)">
                     <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">
-                        Versión 1.1 - Local First PWA
+                        Versión 1.2 - Cloud Sync Enabled
                     </p>
                 </div>
             </div>
         `;
+    },
+
+    /**
+     * Show the Auth modal
+     */
+    showAuthModal: (onSignUp, onSignIn) => {
+        const modal = document.createElement('div');
+        modal.className = 'modal fade-in';
+        modal.innerHTML = `
+            <div class="card modal-content slide-up">
+                <h2 id="auth-title" style="margin-bottom: 1.5rem; text-align: center">Iniciar Sesión</h2>
+                <form id="auth-form">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="auth-email" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="auth-password" placeholder="••••••••" required minlength="6">
+                    </div>
+                    <div id="auth-error" style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 1rem; display: none;"></div>
+                    
+                    <button type="submit" class="btn btn-primary" id="btn-auth-submit">Entrar</button>
+                    <button type="button" class="btn btn-ghost" id="btn-auth-toggle" style="margin-top: 0.5rem; font-size: 0.85rem">
+                        ¿No tienes cuenta? Regístrate
+                    </button>
+                    <button type="button" class="btn btn-ghost" id="btn-auth-cancel" style="margin-top: 1rem">Cancelar</button>
+                </form>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        let isLogin = true;
+        const toggleBtn = modal.querySelector('#btn-auth-toggle');
+        const title = modal.querySelector('#auth-title');
+        const submitBtn = modal.querySelector('#btn-auth-submit');
+        const errorEl = modal.querySelector('#auth-error');
+
+        toggleBtn.onclick = () => {
+            isLogin = !isLogin;
+            title.innerText = isLogin ? 'Iniciar Sesión' : 'Crear Cuenta';
+            submitBtn.innerText = isLogin ? 'Entrar' : 'Registrarse';
+            toggleBtn.innerText = isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Entra';
+        };
+
+        modal.querySelector('#auth-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = modal.querySelector('#auth-email').value;
+            const password = modal.querySelector('#auth-password').value;
+
+            errorEl.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Procesando...';
+
+            try {
+                if (isLogin) {
+                    await onSignIn(email, password);
+                } else {
+                    await onSignUp(email, password);
+                }
+                modal.remove();
+            } catch (err) {
+                errorEl.innerText = err.message || 'Ocurrió un error';
+                errorEl.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.innerText = isLogin ? 'Entrar' : 'Registrarse';
+            }
+        };
+
+        modal.querySelector('#btn-auth-cancel').onclick = () => modal.remove();
     }
 };
+
 

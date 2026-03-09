@@ -1,4 +1,4 @@
-const CACHE_NAME = 'metas-cache-v1';
+const CACHE_NAME = 'metas-cache-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -9,6 +9,8 @@ const ASSETS = [
     './scripts/storage.js',
     './scripts/ui.js',
     './scripts/logic.js',
+    './scripts/supabase.js',
+    './scripts/auth.js',
     './manifest.json',
     './icons/icon-512.png'
 ];

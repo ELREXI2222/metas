@@ -5,6 +5,7 @@
 import { storage } from './storage.js';
 import { logic } from './logic.js';
 import { ui } from './ui.js';
+import { auth } from './auth.js';
 
 const elements = {
     mainContent: document.getElementById('main-content'),
@@ -12,12 +13,27 @@ const elements = {
     totalScore: document.getElementById('total-score')
 };
 
+let currentUser = null;
+let currentTab = 'btn-home';
+
 /**
  * Initialize the application
  */
-function init() {
-    renderApp();
+async function init() {
     setupEventListeners();
+
+    // Listen for auth changes
+    auth.onAuthStateChange(async (event, user) => {
+        currentUser = user;
+        if (event === 'SIGNED_IN') {
+            await storage.syncFromCloud();
+        }
+        renderApp();
+    });
+
+    // Initial user check
+    currentUser = await auth.getUser();
+    renderApp();
 }
 
 /**
@@ -27,8 +43,12 @@ function renderApp() {
     const data = storage.getData();
     const weekId = logic.getCurrentWeekId();
 
-    // Render Goals
-    ui.renderGoals(data.goals, elements.mainContent);
+    if (currentTab === 'btn-home') {
+        ui.renderGoals(data.goals, elements.mainContent);
+    } else {
+        ui.renderSettings(elements.mainContent, currentUser);
+        setupSettingsEvents();
+    }
 
     // Update Score
     const score = logic.calculateTotalScore(data.goals, weekId);
@@ -70,17 +90,17 @@ function setupEventListeners() {
         }
     });
 
-
     // Navigation
     document.getElementById('btn-home').addEventListener('click', (e) => {
+        currentTab = 'btn-home';
         setActiveTab('btn-home');
         renderApp();
     });
 
     document.getElementById('btn-stats').addEventListener('click', (e) => {
+        currentTab = 'btn-stats';
         setActiveTab('btn-stats');
-        ui.renderSettings(elements.mainContent);
-        setupSettingsEvents();
+        renderApp();
     });
 }
 
@@ -93,6 +113,21 @@ function setupSettingsEvents() {
     const btnExport = document.getElementById('btn-export');
     const btnImportTrigger = document.getElementById('btn-import-trigger');
     const importFile = document.getElementById('import-file');
+    const btnLoginTrigger = document.getElementById('btn-login-trigger');
+    const btnLogout = document.getElementById('btn-logout');
+
+    if (btnLoginTrigger) {
+        btnLoginTrigger.onclick = () => {
+            ui.showAuthModal(
+                (email, pass) => auth.signUp(email, pass),
+                (email, pass) => auth.signIn(email, pass)
+            );
+        };
+    }
+
+    if (btnLogout) {
+        btnLogout.onclick = () => auth.signOut();
+    }
 
     if (btnExport) {
         btnExport.onclick = () => {
@@ -127,7 +162,6 @@ function setupSettingsEvents() {
         };
     }
 }
-
 
 // Start the app when DOM is ready
 document.addEventListener('DOMContentLoaded', init);
