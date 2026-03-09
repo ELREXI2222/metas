@@ -71,15 +71,63 @@ function setupEventListeners() {
     });
 
 
-    // Navigation (Demo/Future)
-    document.querySelectorAll('.nav-item:not(.primary)').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            // Logic for switching tabs could go here
-        });
+    // Navigation
+    document.getElementById('btn-home').addEventListener('click', (e) => {
+        setActiveTab('btn-home');
+        renderApp();
+    });
+
+    document.getElementById('btn-stats').addEventListener('click', (e) => {
+        setActiveTab('btn-stats');
+        ui.renderSettings(elements.mainContent);
+        setupSettingsEvents();
     });
 }
+
+function setActiveTab(id) {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function setupSettingsEvents() {
+    const btnExport = document.getElementById('btn-export');
+    const btnImportTrigger = document.getElementById('btn-import-trigger');
+    const importFile = document.getElementById('import-file');
+
+    if (btnExport) {
+        btnExport.onclick = () => {
+            const data = storage.exportData();
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `metas_respaldo_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+    }
+
+    if (btnImportTrigger && importFile) {
+        btnImportTrigger.onclick = () => importFile.click();
+        importFile.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const success = storage.importData(event.target.result);
+                    if (success) {
+                        alert('¡Datos importados con éxito!');
+                        document.getElementById('btn-home').click();
+                    } else {
+                        alert('Error al importar el archivo. Verifica el formato.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+    }
+}
+
 
 // Start the app when DOM is ready
 document.addEventListener('DOMContentLoaded', init);

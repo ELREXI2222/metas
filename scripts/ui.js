@@ -130,5 +130,39 @@ export const ui = {
         if (scoreEl) {
             scoreEl.innerText = score;
         }
+    },
+
+    /**
+     * Render the settings/stats view
+     */
+    renderSettings: (container) => {
+        container.innerHTML = `
+            <div class="card fade-in">
+                <h2 style="margin-bottom: 1rem">Configuración y Respaldo</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    Tus datos se guardan de forma local en este navegador. Si borras el historial o desinstalas el navegador, perderás tus metas. Te recomendamos hacer respaldos periódicos.
+                </p>
+                
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button id="btn-export" class="btn btn-primary">
+                        💾 Exportar Mis Datos (JSON)
+                    </button>
+                    
+                    <div style="position: relative;">
+                        <button id="btn-import-trigger" class="btn btn-ghost" style="border: 1px dashed var(--glass-border)">
+                            📂 Importar Datos
+                        </button>
+                        <input type="file" id="import-file" style="display: none;" accept=".json">
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--glass-border)">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+                        Versión 1.1 - Local First PWA
+                    </p>
+                </div>
+            </div>
+        `;
     }
 };
+

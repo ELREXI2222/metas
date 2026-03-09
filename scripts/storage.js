@@ -63,5 +63,30 @@ export const storage = {
         data.goals = data.goals.filter(g => g.id !== goalId);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         return data.goals;
+    },
+
+    /**
+     * Export all data as a JSON string
+     */
+    exportData: () => {
+        const data = storage.getData();
+        return JSON.stringify(data, null, 2);
+    },
+
+    /**
+     * Import data from a JSON string
+     */
+    importData: (jsonString) => {
+        try {
+            const data = JSON.parse(jsonString);
+            if (data && Array.isArray(data.goals)) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                return true;
+            }
+        } catch (e) {
+            console.error('Error importing data:', e);
+        }
+        return false;
     }
 };
+
