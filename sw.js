@@ -1,4 +1,4 @@
-const CACHE_NAME = 'metas-cache-v2';
+const CACHE_NAME = 'metas-cache-v3';
 const ASSETS = [
     './',
     './index.html',
