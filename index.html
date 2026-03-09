@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <title>Metas | Tracker Personal</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-512.png">
+
+    <!-- Modular CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/animations.css">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registrado'))
+                    .catch(err => console.log('SW error', err));
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Dashboard Header -->
+        <header class="header glass">
+            <div class="header-content">
+                <h1>Mis Metas</h1>
+                <div class="weekly-score">
+                    <span class="label">Puntaje Semanal</span>
+                    <span id="total-score" class="score">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="container">
+            <!-- Content will be injected by UI module -->
+            <div class="loading">Cargando tus metas...</div>
+        </main>
+
+        <!-- Navigation / Actions -->
+        <nav class="bottom-nav glass">
+            <button id="btn-home" class="nav-item active" aria-label="Inicio">
+                <span class="icon">🏠</span>
+            </button>
+            <button id="btn-add" class="nav-item primary" aria-label="Nueva Meta">
+                <span class="icon">+</span>
+            </button>
+            <button id="btn-stats" class="nav-item" aria-label="Estadísticas">
+                <span class="icon">📊</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Modular JS -->
+    <script type="module" src="scripts/main.js"></script>
+</body>
+
+</html>
