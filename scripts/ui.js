@@ -25,7 +25,7 @@ export const ui = {
 
         container.innerHTML = goals.map(goal => {
             const { completedCount, target, percentage } = logic.calculateGoalProgress(goal, weekId);
-            const progress = goal.weeklyProgress[weekId] || Array(7).fill(false);
+            const progress = goal.weekly_progress[weekId] || Array(7).fill(false);
             const dayNames = logic.getDayNames();
 
             return `

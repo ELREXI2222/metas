@@ -19,7 +19,7 @@ export const logic = {
      * Calculate progress for a single goal in a specific week
      */
     calculateGoalProgress: (goal, weekId) => {
-        const progress = goal.weeklyProgress[weekId] || Array(7).fill(false);
+        const progress = goal.weekly_progress[weekId] || Array(7).fill(false);
         const completedCount = progress.filter(Boolean).length;
         const percentage = Math.min((completedCount / goal.target) * 100, 100);
         return {
